@@ -11,6 +11,8 @@ include_once('../vendor/autoload.php');
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 
 date_default_timezone_set('Europe/Budapest');
 
@@ -24,6 +26,13 @@ $twig->clearCacheFiles();
 $router->addRoute('GET', '/form', function (Request $request, Response $response) use($twig) {
     // do something clever
     $response = new Response($twig->render('form.twig.html', []));
+    return $response;
+});
+
+$router->addRoute('POST', '/loginform', function (Request $request, Response $response) use($twig) {
+    $serform = $request->request->get('serform');
+
+    $response = new JsonResponse(['serform'=>$request->request->get('serform')]);
     return $response;
 });
 

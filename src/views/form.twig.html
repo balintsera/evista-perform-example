@@ -136,7 +136,7 @@
                 var data = form.serialize();
                 data += '&serform='+getFormMarkup();
                 console.log(data);
-                post('loginform', data, function(response){
+                post('/loginform', data, function(response){
                     console.log('success');
                     console.log(response);
                 }, console.log);
