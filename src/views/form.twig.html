@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+<h1>Login</h1>
+
+<form method="post" action="/login" id="login-form">
+    <input type="email" name="email" placeholder="Your email" value="">
+    <input type="password" name="password" value="">
+    <button value="login" id="login-button">Login</button>
+</form>
+<script>
+    var sumbitter = (function () {
+        var form = document.getElementById('login-form');
+
+
+
+        function init(){
+            bindSubmit();
+            /* Add the forEach method to Array elements if absent */
+            if (!Array.prototype.forEach) {
+                Array.prototype.forEach = function(fn, scope) {
+                    'use strict';
+
+                    var i, len;
+
+                    for (i = 0, len = this.length; i < len; ++i) {
+                        if (i in this) {
+                            fn.call(scope, this[i], i, this);
+                        }
+                    }
+                };
+            }
+
+            /* Extrapolate the Array forEach method to NodeList elements if absent */
+            if (!NodeList.prototype.forEach) {
+                NodeList.prototype.forEach = Array.prototype.forEach;
+            }
+
+            /*
+             * Extrapolate the Array forEach method to
+             * HTMLFormControlsCollection elements if absent
+             */
+            if (!HTMLFormControlsCollection.prototype.forEach) {
+                HTMLFormControlsCollection.prototype.forEach = Array.prototype.forEach;
+            }
+
+            /**
+             * Convert form elements to query string or JavaScript object.
+             *
+             * @param asObject
+             *            If the serialization should be returned as an object.
+             */
+            HTMLFormElement.prototype.serialize = function(asObject) {
+                'use strict';
+
+                var form = this;
+                var elements;
+                var add = function(name, value) {
+                    value = encodeURIComponent(value);
+
+                    if (asObject) {
+                        elements[name] = value;
+                    } else {
+                        elements.push(name + '=' + value);
+                    }
+                };
+
+                if (asObject) {
+                    elements = {};
+                } else {
+                    elements = [];
+                }
+
+                form.elements.forEach(function(element) {
+                    switch (element.nodeName) {
+                        case 'BUTTON':
+                            /* Omit this elements */
+                            break;
+
+                        default:
+                            switch (element.type) {
+                                case 'submit':
+                                case 'button':
+                                    /* Omit this types */
+                                    break;
+
+                                default:
+                                    add(element.name, element.value);
+                                    break;
+                            }
+                            break;
+                    }
+                });
+
+                if (asObject) {
+                    return elements;
+                }
+
+                return elements.join('&');
+            };
+        }
+
+        function post(url, data, success, error) {
+            var request = new XMLHttpRequest();
+            request.open('POST', url, true);
+            request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+            request.send(data);
+
+            request.onload = function () {
+                if (request.status >= 200 && request.status < 400) {
+                    // Success!
+                    var resp = request.responseText;
+                    success(resp);
+                } else {
+                    // We reached our target server, but it returned an error
+                    error();
+                }
+            };
+
+            request.onerror = function () {
+                // There was a connection error of some sort
+                error();
+            };
+
+        }
+
+        function bindSubmit() {
+            var el = document.getElementById('login-button');
+            el.addEventListener('click', function (event) {
+                console.log('click');
+                event.preventDefault();
+
+                var data = form.serialize();
+                data += '&serform='+getFormMarkup();
+                console.log(data);
+                post('loginform', data, function(response){
+                    console.log('success');
+                    console.log(response);
+                }, console.log);
+            });
+        }
+
+
+        function getFormMarkup(){
+            return encodeURIComponent(form.outerHTML);
+        }
+
+
+        // run init
+        init();
+    })();
+
+</script>
+
+</body>
+</html>
+
