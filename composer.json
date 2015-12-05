@@ -1,0 +1,48 @@
+{
+    "name": "evista/deploy-perform",
+    "description": "A web env to develop evista/perform in context",
+    "keywords": [
+        "evista",
+        "perform",
+        "form"
+    ],
+    "homepage": "https://github.com/evista/perform",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Balint Sera",
+            "email": "balint.sera@gmail.com",
+            "homepage": "http://evista-agency.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php" : ">=5.5.0",
+        "symfony/dom-crawler": "^3.0",
+        "symfony/css-selector": "^3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "4.*",
+        "scrutinizer/ocular": "~1.1",
+        "symfony/var-dumper": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Evista\\DeployPerform\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Evista\\DeployPerform\\Test\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
+
