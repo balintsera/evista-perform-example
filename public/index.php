@@ -12,12 +12,16 @@ include_once('../vendor/autoload.php');
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\DomCrawler\Crawler;
+use Evista\Perform\FormMarkupTranspiler;
 
 
 date_default_timezone_set('Europe/Budapest');
 
 $router = new League\Route\RouteCollection;
 $loader = new Twig_Loader_Filesystem('../src/views');
+$crawler = new Crawler();
+
 $twig = new Twig_Environment($loader, array(
     'cache' => '../var/cache',
 ));
@@ -29,10 +33,13 @@ $router->addRoute('GET', '/form', function (Request $request, Response $response
     return $response;
 });
 
-$router->addRoute('POST', '/loginform', function (Request $request, Response $response) use($twig) {
-    $serform = $request->request->get('serform');
+$router->addRoute('POST', '/loginform', function (Request $request, Response $response) use($twig, $crawler) {
+    $formMarkup = $request->request->get('serform');
 
-    $response = new JsonResponse(['serform'=>$request->request->get('serform')]);
+    $transpiler = new FormMarkupTranspiler($crawler, $formMarkup);
+    $fields = $transpiler->findFields();
+
+    $response = new JsonResponse(['dump'=>$fields]);
     return $response;
 });
 
