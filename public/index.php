@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\DomCrawler\Crawler;
-use Evista\Perform\FormMarkupTranspiler;
+use Evista\Perform\Service;
 
 
 date_default_timezone_set('Europe/Budapest');
@@ -36,10 +36,11 @@ $router->addRoute('GET', '/form', function (Request $request, Response $response
 $router->addRoute('POST', '/loginform', function (Request $request, Response $response) use($twig, $crawler) {
     $formMarkup = $request->request->get('serform');
 
-    $transpiler = new FormMarkupTranspiler($crawler, $formMarkup);
-    $fields = $transpiler->findFields();
+    $formService = new Service(new Crawler());
+    $form = $formService->transpileForm($formMarkup);
 
-    $response = new JsonResponse(['dump'=>print_r($fields, true)]);
+
+    $response = new JsonResponse(['dump'=>print_r($form, true)]);
     return $response;
 });
 
