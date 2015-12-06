@@ -21,6 +21,8 @@ date_default_timezone_set('Europe/Budapest');
 $router = new League\Route\RouteCollection;
 $loader = new Twig_Loader_Filesystem('../src/views');
 $crawler = new Crawler();
+// Initialize form transpilation service (dependency injection friendly interface)
+$formService = new Service($crawler);
 
 $twig = new Twig_Environment($loader, array(
     'cache' => '../var/cache',
@@ -33,14 +35,12 @@ $router->addRoute('GET', '/form', function (Request $request, Response $response
     return $response;
 });
 
-$router->addRoute('POST', '/loginform', function (Request $request, Response $response) use($twig, $crawler) {
-    $formMarkup = $request->request->get('serform');
+$router->addRoute('POST', '/loginform', function (Request $request, Response $response) use($twig, $crawler, $formService) {
 
-    $formService = new Service(new Crawler());
+    $formMarkup = $request->request->get('serform');
     $form = $formService->transpileForm($formMarkup);
 
-
-    $response = new JsonResponse(['dump'=>print_r($form, true)]);
+    $response = new JsonResponse(['dump'=>(var_export($form, true))]);
     return $response;
 });
 
