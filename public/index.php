@@ -39,7 +39,7 @@ $router->addRoute('POST', '/loginform', function (Request $request, Response $re
     $transpiler = new FormMarkupTranspiler($crawler, $formMarkup);
     $fields = $transpiler->findFields();
 
-    $response = new JsonResponse(['dump'=>$fields]);
+    $response = new JsonResponse(['dump'=>print_r($fields, true)]);
     return $response;
 });
 

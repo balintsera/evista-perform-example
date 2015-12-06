@@ -138,7 +138,12 @@
                 console.log(data);
                 post('/loginform', data, function(response){
                     console.log('success');
+
+                    response = JSON.parse(response);
                     console.log(response);
+                    var dumper = document.getElementById('dumper');
+                    dumper.innerHTML = response.dump;
+
                 }, console.log);
             });
         }
@@ -155,6 +160,9 @@
 
 </script>
 
+<pre id="dumper">
+
+</pre>
 </body>
 </html>
 
