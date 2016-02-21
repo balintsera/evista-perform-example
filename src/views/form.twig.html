@@ -9,6 +9,13 @@
 <form method="post" action="/login" id="login-form">
     <input type="email" name="email" placeholder="Your email" value="" pattern="^([a-zA-Z0-9_.+-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$">
     <input type="password" name="password" value="">
+    <textarea name="test_textarea"></textarea>
+    <select name="test-select">
+        <option value="volvo">Volvo</option>
+        <option value="saab" selected>Saab</option>
+        <option value="mercedes">Mercedes</option>
+        <option value="audi">Audi</option>
+    </select>
     <button value="login" id="login-button">Login</button>
 </form>
 <script>
@@ -135,7 +142,7 @@
                 console.log(data);
                 post('/loginform', data, function(response){
                     console.log('success');
-
+                    console.log(response);
                     response = JSON.parse(response);
                     console.log(response);
                     var dumper = document.getElementById('dumper');
@@ -162,4 +169,3 @@
 </pre>
 </body>
 </html>
-
