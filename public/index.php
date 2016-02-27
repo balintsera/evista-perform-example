@@ -33,7 +33,7 @@ $twig->clearCacheFiles();
 
 $router->addRoute(
     'GET',
-    '/form',
+    '/',
     function (Request $request, Response $response) use ($twig) {
         // do something clever
         $response = new Response($twig->render('form.twig.html', []));
