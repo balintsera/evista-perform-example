@@ -8,12 +8,12 @@
 
 include_once('../vendor/autoload.php');
 
-
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\DomCrawler\Crawler;
 use Evista\Perform\Service;
+
 
 
 date_default_timezone_set('Europe/Budapest');
@@ -22,12 +22,13 @@ $router = new League\Route\RouteCollection;
 $loader = new Twig_Loader_Filesystem('../src/views');
 $crawler = new Crawler();
 // Initialize form transpilation service (dependency injection friendly interface)
-$formService = new Service($crawler);
+$formService = new Service($crawler, '../var/uploads');
 
 $twig = new Twig_Environment(
-    $loader, array(
+    $loader,
+    array(
     'cache' => '../var/cache',
-)
+    )
 );
 $twig->clearCacheFiles();
 
@@ -47,7 +48,9 @@ $router->addRoute(
     '/displayform',
     function (Request $request, Response $response) use ($twig, $crawler, $formService) {
 
+
         $formMarkup = $request->request->get('serform');
+        return new JsonResponse(['dump' => (var_export($_POST, true))]);
         $form = $formService->transpileForm($formMarkup);
 
         // We just dump the object to enable
@@ -60,11 +63,20 @@ $router->addRoute(
 // Use form data
 $router->addRoute(
     'POST',
-    '/loginform',
+    '/example_submit',
     function (Request $request, Response $response) use ($twig, $crawler, $formService) {
 
         $formMarkup = $request->request->get('serform');
-        $form = $formService->transpileForm($formMarkup);
+
+        try {
+            $form = $formService->transpileForm($formMarkup);
+        } catch (\Exception $exception) {
+            $response = new Response();
+            $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+            $response->setContent('Error: ' . $exception->getMessage());
+            $response->send();
+            return;
+        }
 
         // Get fields:
         $fields = $form->getFields();
@@ -82,6 +94,30 @@ $router->addRoute(
         // Get defaultly selected option (that was set selected in markup)
         $defaultSelected = $selectField->getDefaultSelectedOption();
 
+        // Get files and handle them (multiple/single file upload) - don't forget the []
+        $fileField = $form->getField('files[]');
+
+        ob_start();
+        var_dump($fileField);
+        error_log(ob_get_clean(), 4);
+
+        $uploadedFiles = $fileField->getFiles();
+        foreach ($uploadedFiles as $uploadedFile) {
+            // Check real file type:
+            $realType = $uploadedFile->getRealType(); // eg. image/png
+
+            $userAddedName = $uploadedFile->getUserName;
+
+            // Move the file to its final destination
+            $uploadedFile->moveToDestination(__DIR__ + '/var/uploads/');
+
+            // Get safe file name
+            $safeBaseName = $uploadedFile->getSafeName(); // no extension
+
+            // Get the original extension from filename
+            $userExtension = $uploadedFile->getUserExtension();
+        }
+
         // Check validity
         if (!$form->isValid()) {
             // All errors can be spotted in the fields
@@ -94,6 +130,9 @@ $router->addRoute(
 
         // We just dump the object to enable
         $response = new JsonResponse(['dump' => (var_export($form, true))]);
+
+
+
 
         return $response;
     }
