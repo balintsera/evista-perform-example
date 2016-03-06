@@ -47,15 +47,11 @@ $router->addRoute(
     'POST',
     '/displayform',
     function (Request $request, Response $response) use ($twig, $crawler, $formService) {
-
-
         $formMarkup = $request->request->get('serform');
-        return new JsonResponse(['dump' => (var_export($_POST, true))]);
         $form = $formService->transpileForm($formMarkup);
 
-        // We just dump the object to enable
+        // Dump the object
         $response = new JsonResponse(['dump' => (var_export($form, true))]);
-
         return $response;
     }
 );
@@ -63,7 +59,7 @@ $router->addRoute(
 // Use form data
 $router->addRoute(
     'POST',
-    '/example_submit',
+    '/multiple-file-uploads',
     function (Request $request, Response $response) use ($twig, $crawler, $formService) {
 
         $formMarkup = $request->request->get('serform');
@@ -97,9 +93,6 @@ $router->addRoute(
         // Get files and handle them (multiple/single file upload) - don't forget the []
         $fileField = $form->getField('files[]');
 
-        ob_start();
-        var_dump($fileField);
-        error_log(ob_get_clean(), 4);
 
         $uploadedFiles = $fileField->getFiles();
         foreach ($uploadedFiles as $uploadedFile) {
@@ -130,10 +123,51 @@ $router->addRoute(
 
         // We just dump the object to enable
         $response = new JsonResponse(['dump' => (var_export($form, true))]);
+        return $response;
+    }
+);
 
+// Use form data
+$router->addRoute(
+    'POST',
+    '/simple-post',
+    function (Request $request, Response $response) use ($twig, $crawler, $formService) {
 
+        $formMarkup = $request->request->get('serform');
 
+        try {
+            $form = $formService->transpileForm($formMarkup);
+        } catch (\Exception $exception) {
+            $response = new Response();
+            $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+            $response->setContent('Error: ' . $exception->getMessage());
+            $response->send();
+            return;
+        }
 
+        // Get fields:
+        $fields = $form->getFields();
+
+        // Use email
+        $emailField = $form->getField('email');
+
+        // Get attributes, eg. placeholder:
+        $placeholder = $emailField->getAttribute('placeholder');
+
+        // Get checkboxes:
+
+        // Check validity
+        if (!$form->isValid()) {
+            // All errors can be spotted in the fields
+            foreach ($form->getFields() as $field) {
+                if (!$field->isValid()) {
+                    $validationErrors[] = $field->getErrors();
+                }
+            }
+        }
+
+        // We just dump the object to enable
+        $response = new JsonResponse(['dump' => (var_export($form, true))]);
         return $response;
     }
 );
