@@ -7,7 +7,6 @@
 <body class="container">
 <h1>Two post form example (with / without file uploads)</h1>
 
-
 <script src="/assets/bundle.js"></script>
 
 
@@ -42,24 +41,20 @@
     </p>
 </form>
 
-<h2>Enctype=application/x-ww-form-urlencoded</h2>
-<form method="post" action="/simple-post" id="login-form-2" onsubmit="Perform.submit(this); return false;">
-    <p>
-        <input type="email" name="email" placeholder="Your email" value="" pattern="^([a-zA-Z0-9_.+-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$">
-    </p>
-    <p>
-        <textarea name="test_textarea"></textarea>
-    </p>
-    <p>
-        <label><input type="checkbox" id="cbox1" value="first_checkbox"> This is the first checkbox</label><br>
-    </p>
-    <p>
-        <input type="checkbox" id="cbox2" value="second_checkbox"> <label for="cbox2">This is the second checkbox</label>
-    </p>
-    <p>
-        <input type="submit" value="Submit" class="btn btn-primary" />
-    </p>
-</form>
+<script type="working-prototype">
+//https://www.new-bamboo.co.uk/blog/2012/01/10/ridiculously-simple-ajax-uploads-with-formdata/
+$inp = $('<input type="hidden" name="serform" value="'+encodeURIComponent(document.getElementById('login-form').outerHTML)+'">');
+  console.log($inp);
+  $('#login-form').append($inp);
+  var f = document.getElementById('login-form');
+  var formData = new FormData(f);
+  console.log(formData);
+  var xhr = new XMLHttpRequest();
+  // Add any event handlers here...
+  xhr.open('POST', '/multiple-file-uploads', true);
+  xhr.onreadystatechange = function(result) { console.log('ajax result', result) };
+  xhr.send(formData);
+</script>
 
 <pre id="dumper">
     result dump goes here...

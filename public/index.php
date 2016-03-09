@@ -14,8 +14,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\DomCrawler\Crawler;
 use Evista\Perform\Service;
 
-
-
 date_default_timezone_set('Europe/Budapest');
 
 $router = new League\Route\RouteCollection;
@@ -62,7 +60,7 @@ $router->addRoute(
     '/multiple-file-uploads',
     function (Request $request, Response $response) use ($twig, $crawler, $formService) {
 
-        $formMarkup = $request->request->get('serform');
+        $formMarkup = urldecode($request->request->get('serform'));
 
         try {
             $form = $formService->transpileForm($formMarkup);
@@ -71,7 +69,7 @@ $router->addRoute(
             $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
             $response->setContent('Error: ' . $exception->getMessage());
             $response->send();
-            return;
+            return $response;
         }
 
         // Get fields:
@@ -102,7 +100,7 @@ $router->addRoute(
             $userAddedName = $uploadedFile->getUserName;
 
             // Move the file to its final destination
-            $uploadedFile->moveToDestination(__DIR__ + '/var/uploads/');
+            $uploadedFile->moveToDestination(__DIR__  .  '/../var/uploads');
 
             // Get safe file name
             $safeBaseName = $uploadedFile->getSafeName(); // no extension
@@ -123,6 +121,7 @@ $router->addRoute(
 
         // We just dump the object to enable
         $response = new JsonResponse(['dump' => (var_export($form, true))]);
+
         return $response;
     }
 );
