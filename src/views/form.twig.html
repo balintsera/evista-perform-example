@@ -62,20 +62,6 @@
   })();
 </script>
 
-<script type="working-prototype">
-//https://www.new-bamboo.co.uk/blog/2012/01/10/ridiculously-simple-ajax-uploads-with-formdata/
-$inp = $('<input type="hidden" name="serform" value="'+encodeURIComponent(document.getElementById('login-form').outerHTML)+'">');
-  console.log($inp);
-  $('#login-form').append($inp);
-  var f = document.getElementById('login-form');
-  var formData = new FormData(f);
-  console.log(formData);
-  var xhr = new XMLHttpRequest();
-  // Add any event handlers here...
-  xhr.open('POST', '/multiple-file-uploads', true);
-  xhr.onreadystatechange = function(result) { console.log('ajax result', result) };
-  xhr.send(formData);
-</script>
 
 <pre id="dumper">
     result dump goes here...
