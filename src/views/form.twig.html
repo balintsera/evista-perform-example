@@ -34,26 +34,32 @@
         </select>
     </p>
     <p>
-        <input type="file" multiple name="files[]">
+        <input type="file" name="upload">
     </p>
     <p>
         <input type="submit" value="Submit" class="btn btn-primary">
     </p>
 </form>
+<pre id="dumper">
+    result dump goes here...
+</pre>
 
 <script>
   (function() {
     var form = document.getElementById('login-form');
+    var dumpContainer = document.getElementById('dumper');
     console.log(form);
     form.onsubmit = function() {
       console.log('click');
       Perform.submit(
         form,
         function success(response) {
-          console.log('mysuccess', response);
+          console.log('success', response.target.responseText);
+          dumpContainer.innerHTML = response.target.response;
         },
         function error(error) {
-          console.log('myError', error);
+          console.log('Error', error);
+          dumpContainer.innerHTML = 'Error! See the console for details';
         }
       );
 
@@ -63,9 +69,7 @@
 </script>
 
 
-<pre id="dumper">
-    result dump goes here...
-</pre>
+
 
 </body>
 </html>

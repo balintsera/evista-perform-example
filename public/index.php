@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\DomCrawler\Crawler;
 use Evista\Perform\Service;
+use Evista\Perform\Exception\FormFieldException;
 
 date_default_timezone_set('Europe/Budapest');
 
@@ -89,10 +90,20 @@ $router->addRoute(
         $defaultSelected = $selectField->getDefaultSelectedOption();
 
         // Get files and handle them (multiple/single file upload) - don't forget the []
-        $fileField = $form->getField('files[]');
+        try {
+             $fileField = $form->getField('upload');
+        } catch (FormFieldException $formFieldException) {
+            $response = new Response();
+            $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+            $response->setContent('Error: ' . $formFieldException->getMessage());
+            $response->send();
+            return $response;
+        }
+       
 
 
         $uploadedFiles = $fileField->getFiles();
+        var_dump($uploadedFiles);
         foreach ($uploadedFiles as $uploadedFile) {
             // Check real file type:
             $realType = $uploadedFile->getRealType(); // eg. image/png
@@ -120,7 +131,7 @@ $router->addRoute(
         }
 
         // We just dump the object to enable
-        $response = new JsonResponse(['dump' => (var_export($form, true))]);
+        $response = new JsonResponse(['form' => var_export($form, true)]);
 
         return $response;
     }
